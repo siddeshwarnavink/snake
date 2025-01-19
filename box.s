@@ -15,22 +15,23 @@ draw_box:
   movq $'+', %rdx
   call mvaddch
 
-  movq $SCREEN_HEIGHT, %rsi
-  movq $'+', %rdx
+  movl SCREEN_HEIGHT(%rip), %esi
   movq $0, %rdi
+  movq $'+', %rdx
   call mvaddch
 
+  movl SCREEN_WIDTH(%rip), %edi
   movq $0, %rsi
   movq $'+', %rdx
-  movq $SCREEN_WIDTH, %rdi
   call mvaddch
 
-  movq $SCREEN_HEIGHT, %rsi
+  movl SCREEN_HEIGHT(%rip), %esi
+  movl SCREEN_WIDTH(%rip), %edi
   movq $'+', %rdx
-  movq $SCREEN_WIDTH, %rdi
   call mvaddch
 
   call .horizontal_lines
+
   call .vertical_lines
 
   leave
@@ -45,7 +46,8 @@ draw_box:
 
 .horizontal_loop:
   movq -8(%rbp), %rax
-  cmpq $SCREEN_HEIGHT, %rax
+  movl SCREEN_HEIGHT(%rip), %edx
+  cmpq %rdx, %rax
   jge .horizontal_done
 
   movq $0, %rdi
@@ -53,7 +55,8 @@ draw_box:
   movq $'-', %rdx
   call mvaddch
 
-  movq $SCREEN_WIDTH, %rdi
+  movl SCREEN_WIDTH(%rip), %edx
+  movq %rdx, %rdi
   movq -8(%rbp), %rsi
   movq $'-', %rdx
   call mvaddch
@@ -74,7 +77,8 @@ draw_box:
 
 .vertical_loop:
   movq -8(%rbp), %rax
-  cmpq $SCREEN_WIDTH, %rax
+  movl SCREEN_WIDTH(%rip), %edx
+  cmpq %rdx, %rax
   jge .vertical_done
 
   movq $0, %rsi
@@ -82,7 +86,8 @@ draw_box:
   movq $'|', %rdx
   call mvaddch
 
-  movq $SCREEN_HEIGHT, %rsi
+  movl SCREEN_HEIGHT(%rip), %edx
+  movq %rdx, %rsi
   movq -8(%rbp), %rdi
   movq $'|', %rdx
   call mvaddch

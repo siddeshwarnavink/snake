@@ -5,19 +5,25 @@
 #
 
 .section .data
-.equ SCREEN_WIDTH, 20
-.equ SCREEN_HEIGHT, 50
+SCREEN_WIDTH:
+    .long 20
+SCREEN_HEIGHT:
+    .long 50
+MAX_SCORE:
+    .long 100
 
-.global SCREEN_WIDTH, SCREEN_HEIGHT
+.global SCREEN_WIDTH, SCREEN_HEIGHT, MAX_SCORE
 
 head:     .string "O"
 pos_x:    .int 2
 pos_y:    .int 2
 dir_x:    .int 1
 dir_y:    .int 0
+food_x:   .int 0
+food_y:   .int 0
 skip:     .int 0
 
-.global pos_x, pos_y, dir_x, dir_y, skip
+.global pos_x, pos_y, dir_x, dir_y, food_x, food_y, skip
 
 .section .bss
 .align 8
@@ -29,6 +35,7 @@ win:      .skip 8
 
 .extern keyboard_input
 .extern draw_box
+.extern spawn_food, render_food
 
 .render:
   pushq %rbp
@@ -40,6 +47,8 @@ win:      .skip 8
   mov pos_x(%rip), %edi
   leaq head(%rip), %rdx
   call mvprintw
+
+  call render_food
 
   call draw_box
 
@@ -79,6 +88,8 @@ _start:
   mov $1, %rsi
   call nodelay
 
+  call spawn_food
+
 .game_loop:
   call keyboard_input
 
@@ -96,7 +107,7 @@ _start:
   jmp .game_loop
 
 .game_loop_skip:
-  mov $0, skip(%rip)
+  movl $0, skip(%rip)
   jmp .game_loop
 
 exit:
