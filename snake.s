@@ -8,12 +8,16 @@
 .equ SCREEN_WIDTH, 20
 .equ SCREEN_HEIGHT, 50
 
-.global pos_x, pos_y, dir_x, dir_y, SCREEN_WIDTH, SCREEN_HEIGHT
+.global SCREEN_WIDTH, SCREEN_HEIGHT
+
 head:     .string "O"
-pos_x:    .int 0
-pos_y:    .int 0
+pos_x:    .int 2
+pos_y:    .int 2
 dir_x:    .int 1
 dir_y:    .int 0
+skip:     .int 0
+
+.global pos_x, pos_y, dir_x, dir_y, skip
 
 .section .bss
 .align 8
@@ -78,6 +82,10 @@ _start:
 .game_loop:
   call keyboard_input
 
+  mov skip(%rip), %eax
+  cmpl $1, %eax
+  je .game_loop_skip
+
   call .tick
 
   call .render
@@ -85,6 +93,10 @@ _start:
   mov $100000, %edi
   call usleep
 
+  jmp .game_loop
+
+.game_loop_skip:
+  mov $0, skip(%rip)
   jmp .game_loop
 
 exit:

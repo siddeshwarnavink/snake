@@ -2,13 +2,12 @@
 
 .section .data
 .equ KEY_ESC, 27
-
 .equ KEY_UP, 260
 .equ KEY_DOWN, 261
 .equ KEY_LEFT, 259
 .equ KEY_RIGHT, 258
 
-.extern dir_x, dir_y
+.extern dir_x, dir_y, skip
 
 .section .bss
 .align 8
@@ -49,19 +48,55 @@ keyboard_input:
   jmp done
 
 .call_move_up:
+  movl dir_y(%rip), %eax
+  cmpl $1, %eax
+  je .skip_move_up
+
   call .move_up
   jmp done
 
+.skip_move_up:
+  movl $1, %eax
+  movl %eax, skip(%rip)
+  jmp done
+
 .call_move_down:
+  movl dir_y(%rip), %eax
+  cmpl $-1, %eax
+  je .skip_move_down
+
   call .move_down
   jmp done
 
+.skip_move_down:
+  movl $1, %eax
+  movl %eax, skip(%rip)
+  jmp done
+
 .call_move_left:
+  movl dir_x(%rip), %eax
+  cmpl $1, %eax
+  je .skip_move_left
+
   call .move_left
   jmp done
 
+.skip_move_left:
+  movl $1, %eax
+  movl %eax, skip(%rip)
+  jmp done
+
 .call_move_right:
+  movl dir_x(%rip), %eax
+  cmpl $-1, %eax
+  je .skip_move_right
+
   call .move_right
+  jmp done
+
+.skip_move_right:
+  movl $1, %eax
+  movl %eax, skip(%rip)
   jmp done
 
 done:
