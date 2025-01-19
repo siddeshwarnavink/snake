@@ -5,10 +5,10 @@
 #
 
 .section .data
-.equ SCREEN_WIDTH, 25
-.equ SCREEN_HEIGHT, 20
+.equ SCREEN_WIDTH, 20
+.equ SCREEN_HEIGHT, 50
 
-.global pos_x, pos_y, dir_x, dir_y
+.global pos_x, pos_y, dir_x, dir_y, SCREEN_WIDTH, SCREEN_HEIGHT
 head:     .string "O"
 pos_x:    .int 0
 pos_y:    .int 0
@@ -24,8 +24,9 @@ win:      .skip 8
 .global _start, exit
 
 .extern keyboard_input
+.extern draw_box
 
-render:
+.render:
   pushq %rbp
   movq %rsp, %rbp
 
@@ -36,13 +37,15 @@ render:
   leaq head(%rip), %rdx
   call mvprintw
 
+  call draw_box
+
   movq win(%rip), %rdi
   call refresh
 
   leave
   ret
 
-tick:
+.tick:
   pushq %rbp
   movq %rsp, %rbp
 
@@ -72,17 +75,17 @@ _start:
   mov $1, %rsi
   call nodelay
 
-game_loop:
+.game_loop:
   call keyboard_input
 
-  call tick
+  call .tick
 
-  call render
+  call .render
 
   mov $100000, %edi
   call usleep
 
-  jmp game_loop
+  jmp .game_loop
 
 exit:
   call endwin

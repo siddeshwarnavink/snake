@@ -35,40 +35,40 @@ keyboard_input:
   je exit
 
   cmpl $KEY_UP, -4(%rbp)
-  je call_move_up
+  je .call_move_up
 
   cmpl $KEY_DOWN, -4(%rbp)
-  je call_move_down
+  je .call_move_down
 
   cmpl $KEY_LEFT, -4(%rbp)
-  je call_move_left
+  je .call_move_left
 
   cmpl $KEY_RIGHT, -4(%rbp)
-  je call_move_right
+  je .call_move_right
 
   jmp done
 
-call_move_up:
-  call move_up
+.call_move_up:
+  call .move_up
   jmp done
 
-call_move_down:
-  call move_down
+.call_move_down:
+  call .move_down
   jmp done
 
-call_move_left:
-  call move_left
+.call_move_left:
+  call .move_left
   jmp done
 
-call_move_right:
-  call move_right
+.call_move_right:
+  call .move_right
   jmp done
 
 done:
   leave
   ret
 
-move_up:
+.move_up:
   pushq %rbp
   movq %rsp, %rbp
 
@@ -80,7 +80,7 @@ move_up:
   leave
   ret
 
-move_down:
+.move_down:
   pushq %rbp
   movq %rsp, %rbp
 
@@ -92,7 +92,7 @@ move_down:
   leave
   ret
 
-move_left:
+.move_left:
   pushq %rbp
   movq %rsp, %rbp
 
@@ -104,7 +104,7 @@ move_left:
   leave
   ret
 
-move_right:
+.move_right:
   pushq %rbp
   movq %rsp, %rbp
 
