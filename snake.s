@@ -7,8 +7,8 @@
 .section .data
 .equ SCREEN_WIDTH, 25
 .equ SCREEN_HEIGHT, 20
-.equ KEY_ESC, 27
 
+.global pos_x, pos_y, dir_x, dir_y
 head:     .string "O"
 pos_x:    .int 0
 pos_y:    .int 0
@@ -17,26 +17,13 @@ dir_y:    .int 0
 
 .section .bss
 .align 8
+.global win
 win:      .skip 8
 
 .section .text
-.global _start
+.global _start, exit
 
-user_input:
-  pushq %rbp
-  movq %rsp, %rbp
-  subq $16, %rsp
-
-  movq win(%rip), %rax
-  movq %rax, %rdi
-  call wgetch
-  movl %eax, -4(%rbp)
-
-  cmpl $KEY_ESC, -4(%rbp)
-  je exit
-
-  leave
-  ret
+.extern keyboard_input
 
 render:
   pushq %rbp
@@ -44,14 +31,26 @@ render:
 
   call clear
 
-  movq win(%rip), %rdi
-  movl pos_y(%rip), %esi
-  movl pos_x(%rip), %edx
-  movq $head, %rcx
+  mov pos_y(%rip), %esi
+  mov pos_x(%rip), %edi
+  leaq head(%rip), %rdx
   call mvprintw
 
   movq win(%rip), %rdi
   call refresh
+
+  leave
+  ret
+
+tick:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  movl dir_x(%rip), %eax
+  addl %eax, pos_x(%rip)
+
+  movl dir_y(%rip), %eax
+  addl %eax, pos_y(%rip)
 
   leave
   ret
@@ -73,13 +72,14 @@ _start:
   mov $1, %rsi
   call nodelay
 
-
 game_loop:
-  call user_input
+  call keyboard_input
+
+  call tick
 
   call render
 
-  mov $1000000, %edi
+  mov $100000, %edi
   call usleep
 
   jmp game_loop
