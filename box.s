@@ -1,7 +1,11 @@
 # vi: set ts=2 sw=2 et ft=asm:
 
 .section .data
+
+SCORE_LABEL:    .string "[ Score: %d ]"
+
 .extern SCREEN_WIDTH, SCREEN_HEIGHT
+.extern score
 
 .section .text
 .global draw_box
@@ -33,6 +37,12 @@ draw_box:
   call .horizontal_lines
 
   call .vertical_lines
+
+  movq $1, %rdi
+  movq $2, %rsi
+  leal SCORE_LABEL(%rip), %edx
+  movl score(%rip), %ecx
+  call mvprintw
 
   leave
   ret

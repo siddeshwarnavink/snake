@@ -5,12 +5,9 @@
 #
 
 .section .data
-SCREEN_WIDTH:
-    .long 20
-SCREEN_HEIGHT:
-    .long 50
-MAX_SCORE:
-    .long 100
+SCREEN_WIDTH:   .long 20
+SCREEN_HEIGHT:  .long 50
+MAX_SCORE:      .long 100
 
 .global SCREEN_WIDTH, SCREEN_HEIGHT, MAX_SCORE
 
@@ -22,8 +19,9 @@ dir_y:    .int 0
 food_x:   .int 0
 food_y:   .int 0
 skip:     .int 0
+score:    .long 0 # size of snake
 
-.global pos_x, pos_y, dir_x, dir_y, food_x, food_y, skip
+.global pos_x, pos_y, dir_x, dir_y, food_x, food_y, skip, score
 
 .section .bss
 .align 8
@@ -35,7 +33,7 @@ win:      .skip 8
 
 .extern keyboard_input
 .extern draw_box
-.extern spawn_food, render_food
+.extern spawn_food, render_food, food_collision
 
 .render:
   pushq %rbp
@@ -67,6 +65,21 @@ win:      .skip 8
 
   movl dir_y(%rip), %eax
   addl %eax, pos_y(%rip)
+
+  call food_collision
+  cmp $1, %eax
+
+  je .respawn_food
+
+  leave
+  ret
+
+.respawn_food:
+  movl score(%rip), %eax
+  addl $1, %eax
+  movl %eax, score(%rip)
+
+  call spawn_food
 
   leave
   ret
