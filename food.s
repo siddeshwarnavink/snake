@@ -25,32 +25,59 @@ render_food:
 spawn_food:
   pushq %rbp
   movq %rsp, %rbp
-  subq $4, %rsp
+  subq $8, %rsp
 
+.spawn_food_x:
+  xor %rdi, %rdi
+  call time
+  movl %eax, -8(%rbp)
+
+  movl -8(%rbp), %edi
   call srand
 
-  # food_x = rand() % SCREEN_WIDTH
 
   call rand
   movl %eax, -4(%rbp)
 
+
+  # food_x = rand() % SCREEN_WIDTH
+
+  xor %edx, %edx
   movl SCREEN_WIDTH(%rip), %eax
   movl %eax, %ecx
   movl -4(%rbp), %eax
   divl %ecx
+
+  cmp %edx, food_x(%rip)
+  je .spawn_food_x
+
   movl %edx, food_x(%rip)
+
+.spawn_food_y:
+  movl -8(%rbp), %eax
+  addl $69, %eax
+  movl %eax, -8(%rbp)
+
+  movl -8(%rbp), %edi
+  call srand
 
   # food_y = rand() % SCREEN_HEIGHT
 
   call rand
   movl %eax, -4(%rbp)
 
+  xor %edx, %edx
   movl SCREEN_HEIGHT(%rip), %eax
   movl %eax, %ecx
   movl -4(%rbp), %eax
   divl %ecx
+
+  cmp %edx, food_y(%rip)
+  je .spawn_food_y
+
   movl %edx, food_y(%rip)
 
+.spawn_food_done:
   leave
   ret
 
