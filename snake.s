@@ -1,131 +1,45 @@
 # vi: set ts=2 sw=2 et ft=asm:
-#
-# snake for x86_64 Linux
-# by Siddeshwar <siddeshwar.work@gmail.com>
-#
 
 .section .data
-SCREEN_WIDTH:   .long 20
-SCREEN_HEIGHT:  .long 50
-MAX_SCORE:      .long 100
 
-.global SCREEN_WIDTH, SCREEN_HEIGHT, MAX_SCORE
+headl:     .string "O"
+bodyl:     .string "o"
 
-head:     .string "O"
-pos_x:    .int 2
-pos_y:    .int 2
-dir_x:    .int 1
-dir_y:    .int 0
-food_x:   .int 0
-food_y:   .int 0
-skip:     .int 0
-score:    .long 0 # size of snake
-
-.global pos_x, pos_y, dir_x, dir_y, food_x, food_y, skip, score
-
-.section .bss
-.align 8
-.global win
-win:      .skip 8
+.extern pos_x, pos_y, body, score
 
 .section .text
-.global _start, exit
 
-.extern keyboard_input
-.extern draw_box
-.extern spawn_food, render_food, food_collision
+.global render_snake
 
-.render:
+render_snake:
   pushq %rbp
   movq %rsp, %rbp
 
-  call clear
+  subq $16, %rsp
+  movq $0, -8(%rbp)
 
-  mov pos_y(%rip), %esi
-  mov pos_x(%rip), %edi
-  leaq head(%rip), %rdx
+  mov pos_x(%rip), %esi
+  mov pos_y(%rip), %edi
+  leaq headl(%rip), %rdx
   call mvprintw
 
-  call render_food
+.render_snake_loop:
+  movq -8(%rbp), %rax
+  movl score(%rip), %ebx
+  cmp %rax, %rbx
+  jl .render_snake_end
 
-  call draw_box
+  movq -8(%rbp), %rax
+  movl body(,%rax,8), %esi
+  movl body+4(,%rax,8), %edi
+  leaq bodyl(%rip), %rdx
+  call mvprintw
 
-  movq win(%rip), %rdi
-  call refresh
+  movq -8(%rbp), %rax
+  addq $1, %rax
+  movq %rax, -8(%rbp)
+  jmp .render_snake_loop
 
+.render_snake_end:
   leave
   ret
-
-.tick:
-  pushq %rbp
-  movq %rsp, %rbp
-
-  movl dir_x(%rip), %eax
-  addl %eax, pos_x(%rip)
-
-  movl dir_y(%rip), %eax
-  addl %eax, pos_y(%rip)
-
-  call food_collision
-  cmp $1, %eax
-
-  je .respawn_food
-
-  leave
-  ret
-
-.respawn_food:
-  movl score(%rip), %eax
-  addl $1, %eax
-  movl %eax, score(%rip)
-
-  call spawn_food
-
-  leave
-  ret
-
-_start:
-  call initscr
-  movl %eax, win
-
-  mov win, %rdi
-  mov $1, %rsi
-  call keypad
-
-  call noecho
-
-  mov $0, %edi
-  call curs_set
-
-  mov win, %rdi
-  mov $1, %rsi
-  call nodelay
-
-  call spawn_food
-
-.game_loop:
-  call keyboard_input
-
-  mov skip(%rip), %eax
-  cmpl $1, %eax
-  je .game_loop_skip
-
-  call .tick
-
-  call .render
-
-  mov $100000, %edi
-  call usleep
-
-  jmp .game_loop
-
-.game_loop_skip:
-  movl $0, skip(%rip)
-  jmp .game_loop
-
-exit:
-  call endwin
-
-  mov $60, %rax
-  xor %rdi, %rdi
-  syscall

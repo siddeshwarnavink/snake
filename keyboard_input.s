@@ -2,10 +2,11 @@
 
 .section .data
 .equ KEY_ESC, 27
-.equ KEY_UP, 260
-.equ KEY_DOWN, 261
-.equ KEY_LEFT, 259
-.equ KEY_RIGHT, 258
+
+.equ KEY_UP, 259
+.equ KEY_DOWN, 258
+.equ KEY_LEFT, 260
+.equ KEY_RIGHT, 261
 
 .extern dir_x, dir_y, skip
 

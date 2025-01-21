@@ -14,8 +14,8 @@ render_food:
   pushq %rbp
   movq %rsp, %rbp
 
-  movl food_y(%rip), %esi
-  movl food_x(%rip), %edi
+  movl food_x(%rip), %esi
+  movl food_y(%rip), %edi
   leaq food(%rip), %rdx
   call mvprintw
 
@@ -35,10 +35,8 @@ spawn_food:
   movl -8(%rbp), %edi
   call srand
 
-
   call rand
   movl %eax, -4(%rbp)
-
 
   # food_x = rand() % SCREEN_WIDTH
 
