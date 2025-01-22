@@ -18,7 +18,7 @@ dir_y:    .int 0
 food_x:   .int 0
 food_y:   .int 0
 skip:     .int 0
-score:    .long 2       # size of snake
+score:    .long 0       # size of snake
 body:     .zero 800     # (4+4)*100
 
 .global pos_x, pos_y, dir_x, dir_y, food_x, food_y, skip, score, body
@@ -83,12 +83,6 @@ win:      .skip 8
   ret
 
 _start:
-  # just for fun
-  movl $10, body(%rip)
-  movl $10, body+4(%rip)
-  movl $10, body+8(%rip)
-  movl $11, body+12(%rip)
-
   call initscr
   movl %eax, win
 

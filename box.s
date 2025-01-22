@@ -2,7 +2,7 @@
 
 .section .data
 
-SCORE_LABEL:    .string "[ Score: %d ]"
+SCORE_LABEL:    .string "[Score: %d]"
 
 .extern SCREEN_WIDTH, SCREEN_HEIGHT
 .extern score
@@ -38,8 +38,8 @@ draw_box:
 
   call .vertical_lines
 
-  movq $1, %rdi
-  movq $2, %rsi
+  movl $55, %esi
+  movl $0, %edi
   leal SCORE_LABEL(%rip), %edx
   movl score(%rip), %ecx
   call mvprintw

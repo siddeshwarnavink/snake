@@ -4,6 +4,7 @@
 
 headl:     .string "O"
 bodyl:     .string "o"
+SNAKE_LABEL:	.string "[Snake %d,%d]"
 
 .extern pos_x, pos_y, body, score
 
@@ -23,6 +24,14 @@ render_snake:
   leaq headl(%rip), %rdx
   call mvprintw
 
+  movl $55, %esi
+  movl $1, %edi
+  leal SNAKE_LABEL(%rip), %edx
+  movl pos_x(%rip), %ecx
+  movl pos_y(%rip), %eax
+  movl %eax, %r8d
+  call mvprintw
+	
 .render_snake_loop:
   movq -8(%rbp), %rax
   movl score(%rip), %ebx

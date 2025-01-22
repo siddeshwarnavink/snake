@@ -1,7 +1,8 @@
 # vi: set ts=2 sw=2 et ft=asm:
 
 .section .data
-food:    .string "@"
+food:       .string "@"
+FOOD_LABLE:	.string "[Food: %d,%d]"
 
 .extern SCREEN_WIDTH, SCREEN_HEIGHT
 .extern food_x, food_y, pos_x, pos_y
@@ -16,9 +17,17 @@ render_food:
 
   movl food_x(%rip), %esi
   movl food_y(%rip), %edi
-  leaq food(%rip), %rdx
+  leal food(%rip), %edx
   call mvprintw
 
+  movl $55, %esi
+  movl $2, %edi
+  leal FOOD_LABLE(%rip), %edx
+  movl food_x(%rip), %ecx
+  movl food_y(%rip), %eax
+  movl %eax, %r8d
+  call mvprintw
+	
   leave
   ret
 
@@ -38,10 +47,8 @@ spawn_food:
   call rand
   movl %eax, -4(%rbp)
 
-  # food_x = rand() % SCREEN_WIDTH
-
   xor %edx, %edx
-  movl SCREEN_WIDTH(%rip), %eax
+  movl SCREEN_HEIGHT(%rip), %eax
   movl %eax, %ecx
   movl -4(%rbp), %eax
   divl %ecx
@@ -59,13 +66,11 @@ spawn_food:
   movl -8(%rbp), %edi
   call srand
 
-  # food_y = rand() % SCREEN_HEIGHT
-
   call rand
   movl %eax, -4(%rbp)
 
   xor %edx, %edx
-  movl SCREEN_HEIGHT(%rip), %eax
+  movl SCREEN_WIDTH(%rip), %eax
   movl %eax, %ecx
   movl -4(%rbp), %eax
   divl %ecx
