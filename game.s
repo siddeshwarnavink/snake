@@ -19,7 +19,7 @@ food_x:   .int 0
 food_y:   .int 0
 skip:     .int 0
 score:    .long 0       # size of snake
-body:     .zero 800     # (4+4)*100
+body:     .zero 800     # (4+4)*MAX_SCORE
 
 .global pos_x, pos_y, dir_x, dir_y, food_x, food_y, skip, score, body
 
@@ -34,7 +34,7 @@ win:      .skip 8
 .extern keyboard_input
 .extern draw_box
 .extern spawn_food, render_food, food_collision
-.extern render_snake
+.extern render_snake, snake_tick
 
 .render:
   pushq %rbp
@@ -57,6 +57,8 @@ win:      .skip 8
 .tick:
   pushq %rbp
   movq %rsp, %rbp
+
+  call snake_tick
 
   movl dir_x(%rip), %eax
   addl %eax, pos_x(%rip)
