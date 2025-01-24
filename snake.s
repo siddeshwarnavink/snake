@@ -13,54 +13,41 @@ BODY_LABEL:	.string "[%d,%d]"
 
 .global render_snake, snake_tick
 
-render_snake:
+
+render_snake:	
   pushq %rbp
   movq %rsp, %rbp
-
   subq $16, %rsp
-  movq $0, -8(%rbp)
+  movl $0, -4(%rbp)
+  jmp .render_snake_cond
 
-  movl $55, %esi
-  movl $1, %edi
-  leal SNAKE_LABEL(%rip), %edx
+.render_snake_loop:
+  movl -4(%rbp), %eax
+  cltq
+  movl body(,%rax,8), %ecx
+  movl -4(%rbp), %eax
+  cltq
+  movl  body+4(,%rax,8), %eax
+  movl  $bodyl, %edx
+  movl  %ecx, %esi
+  movl  %eax, %edi
+  movl  $0, %eax
+  call  mvprintw
+  addl  $1, -4(%rbp)
+
+.render_snake_cond:
+  movl score(%rip), %eax
+  cmpl %eax, -4(%rbp)
+  jl .render_snake_loop
+
   movl pos_x(%rip), %ecx
   movl pos_y(%rip), %eax
-  movl %eax, %r8d
+  movl $headl, %edx
+  movl %ecx, %esi
+  movl %eax, %edi
+  movl $0, %eax
   call mvprintw
-	
-.render_snake_loop:
-  movq -8(%rbp), %rax
-  movl score(%rip), %ebx
-
-  cmp %rax, %rbx
-  jle .render_snake_end
-
-  movq -8(%rbp), %rax
-  movl body(,%rax,4), %esi
-  movl body+4(,%rax,4), %edi
-  leaq bodyl(%rip), %rdx
-  call mvprintw
-
-  movq -8(%rbp), %rax
-  movl $55, %esi
-  movl $3, %edi
-  addl %eax, %edi
-  leal BODY_LABEL(%rip), %edx
-  movl body(,%rax,4), %ecx
-  movl body+4(,%rax,4), %eax
-  movl %eax, %r8d
-  call mvprintw
-
-  movq -8(%rbp), %rax
-  addq $1, %rax
-  movq %rax, -8(%rbp)
-  jmp .render_snake_loop
-
-.render_snake_end:
-  mov pos_x(%rip), %esi
-  mov pos_y(%rip), %edi
-  leaq headl(%rip), %rdx
-  call mvprintw
+  movl $0, %eax
 
   leave
   ret
@@ -75,8 +62,8 @@ snake_tick:
   movl %eax, -4(%rbp)
 
 .snake_tick_loop:
-  cmpl    $0, -4(%rbp)
-  je .snake_tick_end
+  cmpl $0, -4(%rbp)
+  jl .snake_tick_end
 
   movl -4(%rbp), %eax
   leal -1(%rax), %edx
