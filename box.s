@@ -8,7 +8,7 @@ SCORE_LABEL:    .string "[Score: %d]"
 .extern score
 
 .section .text
-.global draw_box
+.global draw_box, box_collision
 
 draw_box:
   pushq %rbp
@@ -106,5 +106,36 @@ draw_box:
   jmp .vertical_loop
 
 .vertical_done:
+  leave
+  ret
+
+box_collision:
+  pushq %rbp
+  movq %rsp, %rbp
+
+  movl pos_x(%rip), %eax
+  testl %eax, %eax
+  je .box_collision_occured
+
+  movl pos_x(%rip), %eax
+  cmpl SCREEN_HEIGHT, %eax
+  je .box_collision_occured
+
+  movl  pos_y(%rip), %eax
+  testl %eax, %eax
+  je .box_collision_occured
+
+  movl pos_y(%rip), %eax
+  cmpl SCREEN_WIDTH, %eax
+  jne .no_box_collision
+
+.box_collision_occured:
+  movl $1, %eax
+  jmp .box_collision_exit
+
+.no_box_collision:
+  movl $0, %eax
+
+.box_collision_exit:
   leave
   ret

@@ -32,7 +32,7 @@ win:      .skip 8
 .global _start, exit
 
 .extern keyboard_input
-.extern draw_box
+.extern draw_box, box_collision
 .extern spawn_food, render_food, food_collision
 .extern render_snake, snake_tick
 
@@ -68,8 +68,15 @@ win:      .skip 8
 
   call food_collision
   cmp $1, %eax
-
   je .respawn_food
+
+  call box_collision
+  cmp $1, %eax
+  je exit
+
+  call snake_collision
+  cmp $1, %eax
+  je exit
 
   leave
   ret
@@ -83,6 +90,10 @@ win:      .skip 8
 
   leave
   ret
+
+.game_loop_skip:
+  movl $0, skip(%rip)
+  jmp .game_loop
 
 _start:
   call initscr
@@ -117,10 +128,6 @@ _start:
   mov $100000, %edi
   call usleep
 
-  jmp .game_loop
-
-.game_loop_skip:
-  movl $0, skip(%rip)
   jmp .game_loop
 
 exit:

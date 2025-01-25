@@ -11,10 +11,9 @@ BODY_LABEL:	.string "[%d,%d]"
 
 .section .text
 
-.global render_snake, snake_tick
+.global render_snake, snake_tick, snake_collision
 
-
-render_snake:	
+render_snake:
   pushq %rbp
   movq %rsp, %rbp
   subq $16, %rsp
@@ -57,7 +56,7 @@ snake_tick:
   movq %rsp, %rbp
 
   subq $16, %rsp
-  
+
   movl score(%rip), %eax
   movl %eax, -4(%rbp)
 
@@ -82,5 +81,40 @@ snake_tick:
   movl pos_y(%rip), %eax
   movl %eax, body+4(%rip)
 
+  leave
+  ret
+
+snake_collision:
+  pushq %rbp
+  movq %rsp, %rbp
+  movl $0, -4(%rbp)
+  jmp .snake_collision_cond
+
+.snake_collision_loop:
+  movl -4(%rbp), %eax
+  cltq
+  movl body(,%rax,8), %edx
+  movl pos_x(%rip), %eax
+  cmpl %eax, %edx
+  jne .snake_collision_inc
+  movl -4(%rbp), %eax
+  cltq
+  movl body+4(,%rax,8), %edx
+  movl pos_y(%rip), %eax
+  cmpl %eax, %edx
+  jne .snake_collision_inc
+  movl $1, %eax
+  jmp .snake_collision_exit
+
+.snake_collision_inc:
+  addl $1, -4(%rbp)
+
+.snake_collision_cond:
+  movl score(%rip), %eax
+  cmpl %eax, -4(%rbp)
+  jl .snake_collision_loop
+  movl $0, %eax
+
+.snake_collision_exit:
   leave
   ret
