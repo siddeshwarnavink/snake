@@ -128,7 +128,9 @@ _start:
   mov $100000, %edi
   call usleep
 
-  jmp .game_loop
+  mov score(%rip), %eax
+  cmpl MAX_SCORE, %eax
+  jl .game_loop
 
 exit:
   call endwin

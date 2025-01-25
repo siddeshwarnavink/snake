@@ -11,4 +11,10 @@ build:
 clean:
 		rm -f snake *.o
 
-.PHONY: build clean
+install: build
+		sudo cp snake /usr/local/bin/snake
+
+uninstall:
+		sudo rm -f /usr/local/bin/snake
+
+.PHONY: build clean install uninstall
